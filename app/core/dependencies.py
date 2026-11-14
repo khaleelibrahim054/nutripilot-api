@@ -1,0 +1,10 @@
+"""Shared FastAPI dependencies. Modules build their own services on top of these via Depends."""
+
+from typing import Annotated
+
+from fastapi import Depends
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.database import get_session
+
+SessionDep = Annotated[AsyncSession, Depends(get_session)]

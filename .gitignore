@@ -1,0 +1,10 @@
+.env
+.claude/state/
+.claude/settings.local.json
+.pytest_cache/
+.ruff_cache/
+.coverage
+.venv/
+__pycache__/
+*.py[cod]
+.npm-cache/

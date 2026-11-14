@@ -1,0 +1,60 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(uv run pytest*)",
+      "Bash(uv run ruff*)",
+      "Bash(uv run alembic*)",
+      "Bash(uv run .claude/hooks/test_lock.py lock)",
+      "Bash(uv run .claude/hooks/test_lock.py status)",
+      "Bash(uv run .claude/hooks/test_lock.py restore)",
+      "Bash(uv add*)",
+      "Bash(uv sync*)"
+    ],
+    "deny": [
+      "Bash(uv run .claude/hooks/test_lock.py unlock*)",
+      "Bash(python3 .claude/hooks/test_lock.py unlock*)",
+      "Read(./.env.production)",
+      "Read(./secrets/**)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.venv/bin/python\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/guard_tests.py\"",
+            "timeout": 10,
+            "onFailure": "block"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.venv/bin/python\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/format_python.py\"",
+            "timeout": 60,
+            "statusMessage": "ruff format + lint"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR/.venv/bin/python\" \"$CLAUDE_PROJECT_DIR/.claude/hooks/stop_gate.py\"",
+            "timeout": 600,
+            "statusMessage": "Quality gate: ruff + full test suite"
+          }
+        ]
+      }
+    ]
+  }
+}
